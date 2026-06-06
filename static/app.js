@@ -174,12 +174,31 @@ elements.text.addEventListener("input", () => {
 });
 
 document.querySelectorAll(".example-card").forEach((button) => {
-  button.addEventListener("click", () => {
-    elements.text.value = button.dataset.example;
-    elements.text.dispatchEvent(new Event("input"));
-    elements.text.focus();
-    setMode("text");
-    document.querySelector(".workspace").scrollIntoView({ behavior: "smooth" });
+  button.addEventListener("click", async () => {
+    if (button.dataset.image) {
+      try {
+        const response = await fetch(button.dataset.image);
+        const blob = await response.blob();
+        const reader = new FileReader();
+        reader.addEventListener("load", () => {
+          imageDataUrl = String(reader.result);
+          elements.preview.src = imageDataUrl;
+          elements.dropZone.classList.add("has-image");
+          showError();
+          setMode("image");
+          document.querySelector(".workspace").scrollIntoView({ behavior: "smooth" });
+        });
+        reader.readAsDataURL(blob);
+      } catch {
+        showError("Could not load the example image.");
+      }
+    } else if (button.dataset.example) {
+      elements.text.value = button.dataset.example;
+      elements.text.dispatchEvent(new Event("input"));
+      elements.text.focus();
+      setMode("text");
+      document.querySelector(".workspace").scrollIntoView({ behavior: "smooth" });
+    }
   });
 });
 
