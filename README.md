@@ -12,7 +12,7 @@ license: mit
 
 # Pakistan Notice Helper
 
-Pakistan Notice Helper is a local-first safety assistant for confusing or
+Pakistan Notice Helper is a model-powered safety assistant for confusing or
 suspicious Pakistani notices, bills, SMS messages, bank alerts, FBR-style
 messages, challans, and courier/customs messages. It accepts pasted text and
 screenshots, then returns:
@@ -42,8 +42,8 @@ python -m pip install -r requirements.txt
 python app.py
 ```
 
-Open `http://127.0.0.1:7860`. No secret or model server is required for demo
-mode.
+Open `http://127.0.0.1:7860`. Local runs bind to localhost by default. On
+Hugging Face Spaces, the app automatically binds to `0.0.0.0`.
 
 Useful checks:
 
@@ -53,7 +53,7 @@ python app.py --self-test
 python app.py --test-endpoint
 ```
 
-The last command requires a configured endpoint.
+The last command requires Modal proxy credentials.
 
 ## Model configuration
 
@@ -62,40 +62,31 @@ OpenAI-compatible endpoint. It does not call OpenAI cloud APIs by default.
 
 | Variable | Purpose |
 | --- | --- |
-| `MODEL_BASE_URL` | Deployed or local endpoint root, with or without `/v1` |
-| `MODEL_NAME` | Model name or server model ID |
+| `MODEL_BASE_URL` | Optional override for the built-in Modal endpoint |
+| `MODEL_NAME` | Optional override for the built-in model ID |
 | `MODEL_API_KEY` | Optional endpoint API key |
 | `MODEL_TIMEOUT_SECONDS` | Optional request timeout; default is 180 seconds |
 | `MODAL_PROXY_KEY` | Optional Modal proxy authentication key |
 | `MODAL_PROXY_SECRET` | Optional Modal proxy authentication secret |
 
-Example:
+The current defaults are:
 
-```powershell
-$env:MODEL_BASE_URL = "http://127.0.0.1:8080"
-$env:MODEL_NAME = "qwen3.6-27b-mtp"
-$env:MODEL_API_KEY = ""
-python app.py
+```text
+MODEL_BASE_URL=https://abidali899--pakistan-scam-checker-qwen36-mtp-serve.modal.run
+MODEL_NAME=qwen3.6-27b-mtp
 ```
 
 See [local model setup](docs/local_model_setup.md) and
 [endpoint testing](docs/model_endpoint_testing.md).
 
-## Operating modes
+## Model behavior
 
-**Connected model mode:** sends text and optional image data to the configured
-multimodal OpenAI-compatible endpoint and validates its structured response.
+The app sends text and optional image data to the configured multimodal
+OpenAI-compatible endpoint and validates its structured response.
 
-**Rule-based fallback:** checks pasted text locally for credential requests,
-urgency, threats, suspicious links, personal mobile numbers, impersonation,
-prizes/refunds, unusual payments, and advance fees.
-
-**Demo/sample mode:** loads without endpoint configuration. Example cards and
-text checks remain usable. Image-only analysis asks the user to paste visible
-text because the Space intentionally does not include OCR.
-
-If a configured endpoint is unavailable or returns invalid output, the app
-shows **Model server not connected** and falls back without crashing.
+There is no rule-based or sample fallback. If credentials are missing, the
+endpoint is unavailable, or the model returns invalid output, the app displays
+a clear error and does not manufacture an assessment.
 
 ## Architecture
 
@@ -114,30 +105,23 @@ Deployed/local OpenAI-compatible endpoint
 unsloth/Qwen3.6-27B-MTP-GGUF
 ```
 
-All frontend assets are local. The app has no runtime CDN, analytics, web API,
-OCR, MCP, OpenAI Agents SDK, or mandatory cloud dependency.
+All frontend assets are local. The app has no runtime CDN, analytics, OCR, MCP,
+or OpenAI Agents SDK. Analysis currently depends on the deployed Modal model.
 
 ## Hugging Face Spaces
 
 Push this repository to a new Gradio Space. The metadata at the top of this
-README pins Gradio and launches `app.py`. Add endpoint settings under **Space
-Settings → Variables and secrets** only when model-backed analysis is needed:
-
-- Variables: `MODEL_BASE_URL`, `MODEL_NAME`
-- Secret: `MODEL_API_KEY` when required
-- Secrets: `MODAL_PROXY_KEY`, `MODAL_PROXY_SECRET` for the current private
-  Modal experiment
-
-The Space remains functional without any of these values.
+README pins Gradio and launches `app.py`. Add `MODAL_PROXY_KEY` and
+`MODAL_PROXY_SECRET` under **Space Settings → Secrets**. The endpoint URL and
+model name are built into the app; `MODEL_BASE_URL` and `MODEL_NAME` remain
+available as overrides for a future local deployment.
 
 ## Privacy and limitations
 
-- Submitted text and images are processed in memory and are not saved by this
-  app.
+- Submitted text and images are sent to the configured Modal endpoint and are
+  not saved by this app.
 - The `traces/` directory contains only a placeholder; runtime tracing is off.
-- A configured remote endpoint receives the submitted content. Review that
-  endpoint's privacy policy before using it with sensitive notices.
-- Do not upload private personal data unless you trust the configured endpoint.
+- Do not upload private personal data unless you trust the Modal deployment.
 - No automated result proves that a notice is genuine or fraudulent.
 - Image analysis requires a multimodal endpoint with its vision projector.
 

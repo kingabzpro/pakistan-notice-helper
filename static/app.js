@@ -220,6 +220,17 @@ elements.form.addEventListener("submit", async (event) => {
   if (!elements.text.value.trim() && !imageDataUrl) {
     return showError("Paste a message or upload a screenshot to continue.");
   }
+
+  if (activeMode === "image") {
+    elements.text.value = "";
+    elements.charCount.textContent = "0 / 12,000";
+  } else if (activeMode === "text") {
+    imageDataUrl = "";
+    elements.image.value = "";
+    elements.preview.removeAttribute("src");
+    elements.dropZone.classList.remove("has-image");
+  }
+
   setLoading(true);
   try {
     renderResult(await callGradioApi("analyze", [elements.text.value, imageDataUrl]));

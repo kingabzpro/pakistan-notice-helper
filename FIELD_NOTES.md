@@ -15,6 +15,10 @@
   and Modal-hosted OpenAI-compatible endpoints without using OpenAI cloud.
 - The experimental Qwen deployment includes `mmproj-F16.gguf`; image analysis
   depends on that projector. This application intentionally adds no OCR.
+- The application currently uses the deployed Modal URL and
+  `qwen3.6-27b-mtp` as built-in defaults. Environment variables can override
+  them for a future local deployment. Model failures do not trigger a
+  rule-based assessment.
 
 ## Pakistan safety patterns
 

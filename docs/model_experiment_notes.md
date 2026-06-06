@@ -101,11 +101,11 @@ contact details extracted from screenshots must be treated as untrusted input.
 
 ## Product boundary
 
-Modal is used only to test containerization, GPU fit, llama.cpp compatibility,
-MTP, and the endpoint contract. The hackathon application should remain
-local-first and usable offline. Hugging Face Spaces can provide a hosted
-fallback where local hardware is insufficient; this Modal experiment should
-not become an implicit production dependency.
+The Modal deployment is currently the application's primary inference backend.
+The app uses its OpenAI-compatible endpoint directly and does not produce a
+rule-based assessment when the endpoint fails. A later local deployment can
+replace Modal by overriding `MODEL_BASE_URL` and `MODEL_NAME`; no application
+code change is required.
 
 ## References
 

@@ -153,14 +153,14 @@ textarea:disabled { opacity: .45; background: #f0f5f2; cursor: not-allowed; }
 .example-icon { flex: 0 0 44px; width: 44px; height: 44px; border-radius: 13px; display: grid; place-items: center; background: var(--green-100); color: var(--green-800); font-size: 11px; font-weight: 900; }
 .example-card strong, .example-card small { display: block; }
 .example-card small { margin-top: 3px; color: var(--muted); }
-.example-grid-images { margin-top: 14px; }
-.example-image-card { flex-direction: column; align-items: stretch; padding: 12px; gap: 10px; }
+.example-grid-images { margin-top: 14px; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+.example-image-card { flex-direction: column; align-items: stretch; padding: 10px; gap: 8px; }
 .example-thumb {
-  width: 100%; height: 140px; object-fit: cover; border-radius: 10px;
+  width: 100%; height: 120px; object-fit: cover; border-radius: 10px;
   border: 1px solid var(--line); background: #f5f5f5;
 }
-.example-image-card strong { font-size: 14px; }
-.example-image-card small { font-size: 12px; }
+.example-image-card strong { font-size: 13px; }
+.example-image-card small { font-size: 11px; }
 
 .results { padding: 42px 0 50px; }
 .result-header { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-bottom: 8px; }

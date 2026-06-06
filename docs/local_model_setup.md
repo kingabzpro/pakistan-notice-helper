@@ -1,7 +1,7 @@
 # Local model setup
 
-Pakistan Notice Helper uses the OpenAI Python SDK as a client for any
-OpenAI-compatible model server. It does not call OpenAI cloud APIs by default.
+Pakistan Notice Helper currently defaults to its deployed Modal model. The
+OpenAI Python SDK is used only as a client for that OpenAI-compatible server.
 
 ## Environment
 
@@ -35,15 +35,7 @@ Space performs no OCR and does not send input to any separate OCR service.
 Run `python app.py --test-endpoint` before opening the UI. The test sends a
 synthetic suspicious Pakistan Post message and validates all output fields.
 
-## Demo mode
-
-Unset `MODEL_BASE_URL` or `MODEL_NAME` to use local rule-based checks:
-
-```powershell
-Remove-Item Env:MODEL_BASE_URL -ErrorAction SilentlyContinue
-Remove-Item Env:MODEL_NAME -ErrorAction SilentlyContinue
-python app.py
-```
-
-Image-only analysis is unavailable in demo mode because the app intentionally
-does not include OCR. Paste visible text to run the local checks.
+These variables override the permanent Modal defaults, making the later switch
+to a local server possible without changing application code. There is no
+rule-based fallback: when the selected model is unavailable, the UI reports
+the error and does not return an assessment.
