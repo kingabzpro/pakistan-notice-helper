@@ -14,6 +14,15 @@ tags:
   - gradio
   - llama.cpp
   - modal
+  - qwen
+  - gguf
+  - multimodal
+  - vision-language-model
+  - scam-detection
+  - online-safety
+  - pakistan
+  - roman-urdu
+  - openai-compatible
 ---
 
 # Pakistan Notice Helper
@@ -58,6 +67,27 @@ but may not know which details are unsafe.
 The project targets the Backyard AI main track, OpenAI Codex Track, Modal
 Awards, and the Llama Champion, Off-Brand, Sharing is Caring, and Field Notes
 bonus quests.
+
+### Why it qualifies
+
+| Requirement or category | Project evidence |
+| --- | --- |
+| **Small Models Only** | Uses Qwen3.6 27B MTP, below the 32B parameter limit. |
+| **Built on Gradio** | Runs as a Gradio Space under the hackathon organization using `gradio.Server`. |
+| **Backyard AI: specific problem** | Helps people in Pakistan assess suspicious local notices, payment demands, courier messages, challans, and government impersonation scams. |
+| **Backyard AI: small-model fit** | A quantized 27B GGUF handles text, screenshots, Roman Urdu, and structured safety guidance through `llama.cpp`. |
+| **Backyard AI: polished app** | Provides a custom responsive interface, bundled examples, clear failures, safety disclaimers, and structured results. |
+| **Modal Awards** | The live model endpoint runs on a Modal L40S with persistent model storage and proxy authentication. |
+| **OpenAI Codex Track** | The public GitHub repository contains Codex-attributed commits and is linked from this Space. |
+| **Llama Champion** | Model inference runs through a pinned CUDA-enabled `llama.cpp` build. |
+| **Off-Brand** | Uses a custom HTML, CSS, and JavaScript frontend instead of the default Gradio interface. |
+| **Sharing is Caring** | Publishes opt-out, privacy-safe traces as a public Hugging Face dataset. |
+| **Field Notes** | Documents design decisions, measured performance, failed approaches, privacy tradeoffs, and limitations. |
+
+The final submission must also include a short demo video, a social-media post,
+and evidence that a target user tried the app. These are submission and
+Backyard AI judging requirements, not features that repository metadata can
+prove.
 
 ## Run locally
 
