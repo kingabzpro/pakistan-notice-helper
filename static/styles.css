@@ -67,9 +67,18 @@ h1, h2, h3, p { overflow-wrap: anywhere; }
 h1 { margin: 0; font-size: clamp(42px, 7vw, 78px); line-height: .98; letter-spacing: -.055em; }
 h1 span { color: #79d9a6; }
 .hero-text { margin: 24px 0; color: #d7e9df; font-size: clamp(17px, 2vw, 21px); line-height: 1.6; }
-.trust-note { display: flex; gap: 12px; align-items: center; }
+.trust-note {
+  max-width: 680px; padding: 16px; display: grid; grid-template-columns: 36px minmax(0, 1fr);
+  gap: 14px; align-items: start; border: 1px solid rgba(141,227,180,.2); border-radius: 16px;
+  background: rgba(0,35,21,.16);
+}
 .trust-note p { margin: 0; color: #c7ddd1; font-size: 14px; line-height: 1.55; }
-.shield { flex: 0 0 32px; width: 32px; height: 32px; border-radius: 10px; display: grid; place-items: center; background: rgba(121,217,166,.15); color: #91e9ba; font-weight: 900; }
+.trust-note strong, .trust-note p span { display: block; }
+.trust-note strong { margin-bottom: 3px; color: #e6f5ed; font-size: 15px; }
+.shield {
+  width: 36px; height: 36px; border-radius: 11px; display: grid; place-items: center;
+  background: rgba(121,217,166,.15); color: #91e9ba; font-weight: 900;
+}
 
 .hero-image {
   display: grid; place-items: center;
