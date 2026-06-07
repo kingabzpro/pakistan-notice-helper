@@ -43,11 +43,10 @@ button { color: inherit; }
 }
 .brand-name { letter-spacing: -.02em; }
 .status-row { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; justify-content: flex-end; }
-.status-badge, .runtime-badge {
+.status-badge {
   padding: 8px 12px; border: 1px solid rgba(255,255,255,.18); border-radius: 999px;
   font-size: 12px; background: rgba(255,255,255,.08);
 }
-.runtime-badge { color: #d9eee3; }
 .status-dot { display: inline-block; width: 7px; height: 7px; margin-right: 7px; border-radius: 50%; background: #f2b84b; }
 .status-badge.connected .status-dot { background: #55dda0; box-shadow: 0 0 0 4px rgba(85,221,160,.12); }
 
@@ -222,7 +221,6 @@ footer { padding: 24px clamp(18px, 5vw, 72px); display: flex; justify-content: s
 
 @media (max-width: 800px) {
   .topbar { align-items: flex-start; }
-  .runtime-badge { display: none; }
   .hero { grid-template-columns: 1fr; padding-top: 55px; }
   .input-grid, .example-grid, .result-grid { grid-template-columns: 1fr; }
   .explanation-card { grid-column: auto; }
