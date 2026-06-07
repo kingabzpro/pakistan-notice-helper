@@ -1,28 +1,29 @@
 ---
 title: Pakistan Notice Helper
-emoji: 🛡️
+emoji: 📬
 colorFrom: green
 colorTo: green
 sdk: gradio
-sdk_version: 6.15.1
+sdk_version: 6.16.0
 app_file: app.py
-pinned: false
+pinned: true
 license: mit
 tags:
-  - backyard-ai
-  - build-small-hackathon
-  - gradio
-  - llama.cpp
-  - modal
-  - qwen
-  - gguf
-  - multimodal
-  - vision-language-model
-  - scam-detection
-  - online-safety
-  - pakistan
-  - roman-urdu
-  - openai-compatible
+- backyard-ai
+- build-small-hackathon
+- gradio
+- llama.cpp
+- modal
+- qwen
+- gguf
+- multimodal
+- vision-language-model
+- scam-detection
+- online-safety
+- pakistan
+- roman-urdu
+- openai-compatible
+short_description: Check notices and messages for scam/fraud risks.
 ---
 
 # Pakistan Notice Helper
