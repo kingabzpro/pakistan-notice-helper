@@ -1,8 +1,8 @@
 ---
 title: Pakistan Notice Helper
-emoji: 🇵🇰
+emoji: 🛡️
 colorFrom: green
-colorTo: emerald
+colorTo: green
 sdk: gradio
 sdk_version: 6.15.1
 app_file: app.py
@@ -166,7 +166,3 @@ Use contact details that you navigate to independently:
 
 Never call a number or open a link merely because it appears inside the message
 being checked.
-
-## License
-
-MIT. See [LICENSE](LICENSE).
