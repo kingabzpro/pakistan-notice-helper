@@ -226,13 +226,3 @@ the trace [`dataset card`](traces/dataset_card.md).
 - [Federal Board of Revenue](https://www.fbr.gov.pk/)
 
 Never rely on a verification link contained inside a suspicious message.
-
-## Tech Tags
-
-`Python` `Gradio` `Qwen` `GGUF` `llama.cpp` `Modal` `Multimodal AI`
-`Vision Language Model` `Scam Detection` `Online Safety` `Pakistan` `Urdu`
-`Roman Urdu` `Bilingual AI` `OpenAI-Compatible API`
-
-## License
-
-Released under the [MIT License](LICENSE).
