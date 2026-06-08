@@ -1,3 +1,33 @@
+---
+title: Pakistan Notice Helper
+emoji: 📬
+colorFrom: green
+colorTo: green
+sdk: gradio
+sdk_version: 6.16.0
+app_file: app.py
+pinned: true
+license: mit
+tags:
+- backyard-ai
+- build-small-hackathon
+- gradio
+- llama.cpp
+- modal
+- qwen
+- gguf
+- multimodal
+- vision-language-model
+- scam-detection
+- online-safety
+- pakistan
+- urdu
+- bilingual
+- roman-urdu
+- openai-compatible
+short_description: Check Pakistani notices for scam risks in English or Urdu.
+---
+
 # Pakistan Notice Helper
 
 Pakistan Notice Helper is a bilingual safety assistant for confusing or
@@ -21,24 +51,36 @@ mixed-language inputs are also supported.
 | Live app | [Hugging Face Space](https://huggingface.co/spaces/build-small-hackathon/pakistan-notice-helper) |
 | Source | [GitHub repository](https://github.com/kingabzpro/pakistan-notice-helper) |
 | Open traces | [Privacy-safe trace dataset](https://huggingface.co/datasets/build-small-hackathon/pakistan-notice-helper-traces) |
-| Build report | [`FIELD_NOTES.md`](FIELD_NOTES.md) |
+| Demo video | [Watch on YouTube](https://www.youtube.com/watch?v=EgYA3jrZTm0) |
+| Build story | [Building Pakistan Notice Helper](https://huggingface.co/blog/build-small-hackathon/building-pakistan-notice-helper) |
+| Social post | [Project announcement on LinkedIn](https://www.linkedin.com/posts/1abidaliawan_after-3-straight-days-of-building-testing-ugcPost-7469716521095794688-TlqZ/) |
 
 ## Hackathon Fit
 
-This is an intended **Backyard AI** submission for the
+This is a **Backyard AI** submission for the
 [Build Small. Play Big. Hackathon](https://huggingface.co/build-small-hackathon).
 It applies a small model to a practical regional safety problem.
 
 | Area | Project evidence |
 | --- | --- |
-| Core constraints | Public Gradio Space using Qwen3.5-4B, below the 7B limit |
-| Backyard AI | Notice and scam triage designed for Pakistani users |
+| Core constraints | Public Gradio Space using Qwen3.5-4B, below the 32B limit |
+| Backyard AI | A real user tested the phone workflow and plans to use it for future suspicious messages |
 | Modal | Qwen3.5-4B is hosted on a Modal L4 GPU endpoint |
 | Tiny Titan | The 4B Q8 model passed the final 10-case internal regression suite |
 | Llama Champion | Qwen3.5-4B runs through a CUDA-enabled `llama.cpp` server using its OpenAI-compatible API |
 | Off-Brand | Custom mobile-first HTML, CSS, and JavaScript interface served through `gradio.Server` instead of the default Gradio UI |
-| Bonus quests | Runtime notes for Local Llama, privacy-safe traces, and published field notes |
-| Pending | Track form, user test, demo video, public announcement, and final repository sync |
+| Sharing is Caring | Privacy-safe workflow traces are published as a Hugging Face dataset |
+| Field Notes | Published a blog in the Build Small Hackathon organization sharing my opinions, development experience, model experiments, and lessons learned |
+
+## Demo and User Feedback
+
+The [demo video](https://www.youtube.com/watch?v=EgYA3jrZTm0) includes a real
+user using the app on a phone, taking screenshots of messages, and checking
+them with Pakistan Notice Helper.
+
+The user especially liked the app's speed and the accuracy of its responses.
+They said they plan to use it in the future to check different scam or
+suspicious messages.
 
 ## Architecture
 
