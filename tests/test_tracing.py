@@ -199,6 +199,70 @@ class TraceTests(unittest.TestCase):
         self.assertNotIn("modal_called", queue_mock.call_args.kwargs)
         self.assertNotIn("retry_count", queue_mock.call_args.kwargs)
 
+    def test_urdu_request_bypasses_english_example_cache(self) -> None:
+        assessment = {
+            "risk_label": "Suspicious",
+            "simple_explanation": "یہ پیغام مشکوک ہے۔",
+            "red_flags": ["غیر مصدقہ لنک"],
+            "safe_next_steps": ["سرکاری ذریعے سے تصدیق کریں۔"],
+            "reply_draft": "",
+        }
+        with patch(
+            "app.model_status",
+            return_value={"connected": True, "label": "ready"},
+        ), patch("app.call_model", return_value=assessment) as model_mock, patch(
+            "app.queue_trace",
+            return_value=("trace-id", "queued"),
+        ):
+            result = app.analyze_notice(
+                "test message",
+                example_id="text-courier",
+                output_language="ur",
+            )
+
+        self.assertTrue(result["ok"])
+        self.assertEqual(result["source"], "model")
+        model_mock.assert_called_once_with(
+            "test message",
+            "",
+            unittest.mock.ANY,
+            output_language="ur",
+        )
+
+    def test_model_request_disables_thinking_and_sets_urdu_prompt(self) -> None:
+        captured: dict = {}
+
+        class Completions:
+            def create(self, **kwargs):
+                captured.update(kwargs)
+                message = type("Message", (), {"content": json.dumps({
+                    "risk_label": "Verify first",
+                    "simple_explanation": "آزاد ذریعے سے تصدیق کریں۔",
+                    "red_flags": ["بھیجنے والا غیر مصدقہ ہے"],
+                    "safe_next_steps": ["سرکاری ذریعے سے رابطہ کریں۔"],
+                    "reply_draft": "",
+                })})()
+                choice = type("Choice", (), {"message": message})()
+                return type("Completion", (), {"choices": [choice]})()
+
+        client = type(
+            "Client",
+            (),
+            {"chat": type("Chat", (), {"completions": Completions()})()},
+        )()
+        with patch("app.create_model_client", return_value=(client, "model")):
+            app.call_model("test", "", output_language="ur")
+
+        self.assertFalse(
+            captured["extra_body"]["chat_template_kwargs"]["enable_thinking"]
+        )
+        self.assertEqual(captured["temperature"], 0)
+        self.assertEqual(captured["max_tokens"], 350)
+        self.assertIn(
+            "Write all user-facing JSON values in clear Urdu script.",
+            captured["messages"][1]["content"],
+        )
+
     def test_timeout_is_sanitized(self) -> None:
         timeout = APITimeoutError(request=httpx.Request("POST", "https://example.invalid"))
         with patch(
@@ -248,57 +312,6 @@ class TraceTests(unittest.TestCase):
             app.parse_model_json('{"risk_label":"invalid"}', telemetry)
         self.assertTrue(telemetry["parse_completed"])
         self.assertNotIn("normalize_completed", telemetry)
-
-    def test_model_json_ignores_thinking_block(self) -> None:
-        assessment = app.parse_model_json(
-            "<think>Consider the visible evidence first.</think>\n"
-            + json.dumps(
-                {
-                    "risk_label": "Suspicious",
-                    "simple_explanation": "The sender requests an unsafe action.",
-                    "red_flags": ["Untrusted payment request"],
-                    "safe_next_steps": ["Verify through an official channel."],
-                    "reply_draft": "Please confirm through your official channel.",
-                }
-            )
-        )
-        self.assertEqual(assessment["risk_label"], "Suspicious")
-
-    def test_reasoning_is_enabled_in_model_request(self) -> None:
-        captured: dict = {}
-
-        class Completions:
-            def create(self, **kwargs):
-                captured.update(kwargs)
-                message = type("Message", (), {"content": json.dumps({
-                    "risk_label": "Verify first",
-                    "simple_explanation": "Verify independently.",
-                    "red_flags": ["Unverified sender"],
-                    "safe_next_steps": ["Use an official channel."],
-                    "reply_draft": "Please confirm through an official channel.",
-                })})()
-                choice = type("Choice", (), {"message": message})()
-                return type("Completion", (), {"choices": [choice]})()
-
-        client = type(
-            "Client",
-            (),
-            {"chat": type("Chat", (), {"completions": Completions()})()},
-        )()
-        with patch("app.create_model_client", return_value=(client, "model")), patch.dict(
-            "os.environ",
-            {"MODEL_ENABLE_REASONING": "true"},
-        ):
-            app.call_model("test", "")
-
-        self.assertTrue(
-            captured["extra_body"]["chat_template_kwargs"]["enable_thinking"]
-        )
-        self.assertEqual(captured["extra_body"]["top_k"], 20)
-        self.assertEqual(captured["temperature"], 1.0)
-        self.assertEqual(captured["top_p"], 0.95)
-        self.assertEqual(captured["presence_penalty"], 1.5)
-        self.assertEqual(captured["max_tokens"], 2048)
 
     def test_model_retry_is_counted_without_extra_trace_call(self) -> None:
         request = httpx.Request("POST", "https://example.invalid")

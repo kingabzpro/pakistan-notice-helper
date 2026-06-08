@@ -54,12 +54,8 @@ The app requests and validates schema-constrained JSON containing:
 - `safe_next_steps`
 - `reply_draft`
 
-Thinking is enabled for production requests. Text requests receive a 2,048-token
-budget and image requests receive a 3,072-token budget so the model has room for
-both its private `<think>` block and the final structured response. The app
-discards the thinking block and validates only the final JSON. Reasoning can be
-disabled with `MODEL_ENABLE_REASONING=false` if a deployment needs the earlier,
-lower-latency behavior.
+Thinking is disabled for these requests so the completion budget is used for
+the final structured response.
 
 ## Product boundary
 

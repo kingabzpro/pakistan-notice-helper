@@ -42,7 +42,9 @@ stack and API behavior remain under my control.
 
 ## Product decisions
 
-- Use simple English rather than legal or security terminology.
+- Offer both English and Urdu instead of assuming every user is comfortable
+  interpreting safety guidance in English.
+- Use simple, direct wording rather than legal or security terminology.
 - Support screenshots because many suspicious messages arrive through SMS,
   WhatsApp, and social media.
 - Treat every URL, phone number, and contact instruction in the submitted
@@ -53,6 +55,32 @@ stack and API behavior remain under my control.
   edited or new input always uses the live model.
 - Show a reply draft only for uncertain cases where clarification may be safe.
   Likely scams do not encourage further engagement.
+
+## English and Urdu experience
+
+I added an English/Urdu switch to make the app more useful for people who can
+read a suspicious message but would understand the safety advice more clearly
+in Urdu. The selected language is remembered in the browser, so returning users
+do not have to switch it again.
+
+Urdu mode is more than a translated navigation layer. It changes the page to a
+right-to-left layout and translates headings, form labels, validation errors,
+status messages, risk labels, examples, disclaimers, and result-card controls.
+Live assessments also ask the model to return the explanation, red flags, safe
+next steps, and optional reply draft in clear Urdu script. English cached
+examples remain cached; selecting one in Urdu mode sends it through the live
+model so the result language matches the interface.
+
+The first Urdu layout exposed details that were easy to miss in English:
+headings needed different line heights, mixed Urdu and Latin model names could
+reorder unexpectedly, and mobile controls required more vertical space. I
+tested the interface at desktop and 390-pixel mobile widths, adjusted the RTL
+spacing, and rewrote literal translations into shorter, more natural Urdu.
+
+I also tested a bundled Nastaliq webfont. It made the interface feel less
+consistent and reduced readability at the sizes used by the app, so I removed
+it and returned to the earlier system Arabic font stack. This kept the improved
+Urdu copy and RTL layout without forcing a decorative typeface on every device.
 
 ## Small-model stack
 
@@ -69,12 +97,18 @@ Key measured results:
 
 | Measurement | Result |
 | --- | --- |
-| Evaluation strict passes | 9 of 10 |
-| Evaluation average score | 89.5/100 |
+| Initial evaluation strict passes | 9 of 10 |
+| Initial evaluation average score | 89.5/100 |
+| Final regression evaluation | 10 of 10 |
+| Final regression average score | 100/100 |
 | High-risk scam cases | All passed |
 | Screenshot cases | Both passed |
 | MTP draft acceptance | 222 of 440 tokens (50.5%) |
 | MTP draft limit | `n_max=2` |
+
+The final score comes from the same small ten-case suite after prompt and
+output-contract fixes. It is useful as a regression check, but it is not a
+real-world accuracy estimate.
 
 The full setup and measurements are documented in
 [the model experiment notes](docs/model_experiment_notes.md).
@@ -103,6 +137,7 @@ JavaScript frontend calls the Gradio POST and SSE protocol:
 ```text
 Browser
   -> custom mobile-first frontend
+  -> English or Urdu interface and response-language request
   -> queued gradio.Server endpoint
   -> OpenAI-compatible client
   -> Modal proxy-authenticated web server
@@ -117,11 +152,16 @@ version and names `app.py` as its entry point.
 ## What failed and changed
 
 - Thinking mode initially consumed the 500-token output budget without
-  returning final JSON. The final app enables thinking with a larger budget,
-  removes the private thinking block, and validates only the final structured
-  response. An environment switch retains the lower-latency non-thinking path.
+  returning final JSON. The production app disables thinking so the bounded
+  completion budget is used for the final structured response.
 - A dense Roman Urdu screenshot reached the original completion limit. Image
   requests now receive a larger token budget.
+- The first Urdu interface used direct translations and generic spacing. It
+  was revised with more natural wording, RTL-specific typography, responsive
+  spacing, and cleaner handling of mixed Urdu and Latin text.
+- A bundled Nastaliq font looked worse in the product UI than the original
+  system font stack. The font was removed while retaining the improved Urdu
+  layout and copy.
 - One model response suggested an unverified official-looking domain. The
   system prompt now forbids invented URLs, phone numbers, organizations, and
   facts.
@@ -177,6 +217,8 @@ accurate personal detail does not establish authenticity.
 
 - The live Space depends on the Modal endpoint and its cold-start behavior.
 - Screenshot quality and dense Roman Urdu text can affect visual recognition.
+- Urdu output quality still depends on the model, and mixed technical terms
+  may occasionally need English wording for clarity.
 - The model can still miss subtle scams or flag legitimate notices.
 - The app does not query government, bank, courier, or telecom databases.
 - A result must always be confirmed through independently located official
@@ -197,6 +239,28 @@ distinction between evidence and inference. The current project stops at
 triage because adding web access without those controls could make a safety
 tool less safe.
 
+## Hackathon submission status
+
+The project meets the core technical constraints: a model at or below 32B,
+Gradio hosting as a Space under the hackathon organization, and a public app.
+It is intended for Backyard AI because the problem is specific and local, the
+4B model is an honest fit for the task, and the interface is designed for the
+people receiving these messages. The final submission form is still pending.
+
+The strongest additional award targets are Modal Awards, Tiny Titan, Off-Brand
+Award, and the OpenAI Track. The implemented bonus-quest evidence clearly
+covers Llama Champion, Off-Brand, and Field Notes. The public trace dataset is
+a Sharing is Caring candidate, but the official wording says “agent trace”
+while this project publishes deterministic request traces rather than an
+autonomous-agent trajectory; that eligibility should be confirmed with the
+organizers. The project does not claim Off the Grid, Well-Tuned, the Nemotron
+Quest, or Best Agent.
+
+Before the June 15, 2026 deadline, the remaining submission work is to record
+target-user use and any resulting change, publish the short demo video and
+social post, verify that GitHub mirrors the final Space source, and submit the
+three required links.
+
 ## References
 
 - [Build Small Hackathon](https://huggingface.co/build-small-hackathon)
@@ -211,4 +275,5 @@ tool less safe.
 - [State Bank of Pakistan](https://www.sbp.org.pk/)
 - [FIA complaint portal](https://complaint.fia.gov.pk/)
 
-Research and deployment results were reviewed on June 7, 2026.
+Hackathon requirements, public links, and deployment claims were reviewed on
+June 8, 2026.

@@ -1,268 +1,123 @@
 # Pakistan Notice Helper
 
-Pakistan Notice Helper is a Qwen3.5-powered safety assistant for confusing or
-suspicious Pakistani notices, bills, SMS messages, bank alerts, FBR-style
-messages, challans, and courier/customs messages. It accepts pasted text and
-screenshots, then returns:
+Pakistan Notice Helper is a bilingual safety assistant for confusing or
+suspicious Pakistani notices, bills, SMS messages, bank alerts, challans, and
+courier or customs messages. Paste text or upload a screenshot to receive:
 
-- **Risk label:** Looks normal, Verify first, Suspicious, or Likely scam
-- A simple English explanation
-- Red flags found
-- Safe next steps
-- A polite reply draft
+- a risk label: **Looks normal**, **Verify first**, **Suspicious**, or **Likely scam**
+- a simple English or Urdu explanation
+- red flags, safe next steps, and a polite reply draft
 
-The interface is a custom mobile-first frontend served by
-[`gradio.Server`](https://www.gradio.app/main/guides/server-mode). Gradio
-provides queueing, API routes, and Hugging Face Spaces hosting without exposing
-a default Gradio UI.
+The mobile-first interface has a persistent English/Urdu switch. Urdu mode uses
+a right-to-left layout and asks the live model to answer in Urdu. Roman Urdu and
+mixed-language inputs are also supported.
 
-> **Pakistan Notice Helper does not provide official verification. It checks
-> common scam signals and gives safe next steps. Always verify through official
-> websites or helplines before making payments or sharing personal
-> information.**
+> Pakistan Notice Helper checks common scam signals but does not provide
+> official verification, legal advice, or financial advice. Verify through an
+> official website or helpline before paying or sharing personal information.
 
-## Build Small Hackathon
-
-This is a **Backyard AI** project built for the
-[Build Small Hackathon](https://huggingface.co/build-small-hackathon). It
-addresses a common local problem: people receive convincing payment notices,
-bank alerts, courier messages, challans, and government impersonation scams
-but may not know which details are unsafe.
-
-- **Space:** [build-small-hackathon/pakistan-notice-helper](https://huggingface.co/spaces/build-small-hackathon/pakistan-notice-helper)
-- **Source:** [kingabzpro/pakistan-notice-helper](https://github.com/kingabzpro/pakistan-notice-helper)
-- **Model:** `unsloth/Qwen3.5-4B-MTP-GGUF` (`Qwen3.5-4B-Q8_0.gguf`)
-- **Inference:** CUDA-enabled `llama.cpp` on a Modal L4
-- **Interface:** custom mobile-first frontend on `gradio.Server`
-- **Open traces:** [privacy-safe trace dataset](https://huggingface.co/datasets/build-small-hackathon/pakistan-notice-helper-traces)
-- **Build report:** [field notes](FIELD_NOTES.md)
-
-The project targets the Backyard AI main track, OpenAI Codex Track, Modal
-Awards, and the Llama Champion, Off-Brand, Sharing is Caring, and Field Notes
-bonus quests.
-
-### Why it qualifies
-
-| Requirement or category | Project evidence |
+| Resource | Link |
 | --- | --- |
-| **Small Models Only** | Uses Qwen3.5 4B MTP, well below the 32B parameter limit. |
-| **Built on Gradio** | Runs as a Gradio Space under the hackathon organization using `gradio.Server`. |
-| **Backyard AI: specific problem** | Helps people in Pakistan assess suspicious local notices, payment demands, courier messages, challans, and government impersonation scams. |
-| **Backyard AI: small-model fit** | A quantized 4B Q8 GGUF handles text, screenshots, Roman Urdu, and structured safety guidance through `llama.cpp`. |
-| **Backyard AI: polished app** | Provides a custom responsive interface, bundled examples, clear failures, safety disclaimers, and structured results. |
-| **Modal Awards** | The live model endpoint runs on a Modal L4 with persistent model storage and proxy authentication. |
-| **OpenAI Codex Track** | The public GitHub repository contains Codex-attributed commits and is linked from this Space. |
-| **Llama Champion** | Model inference runs through a pinned CUDA-enabled `llama.cpp` build. |
-| **Off-Brand** | Uses a custom HTML, CSS, and JavaScript frontend instead of the default Gradio interface. |
-| **Sharing is Caring** | Publishes opt-out, privacy-safe traces as a public Hugging Face dataset. |
-| **Field Notes** | Documents design decisions, measured performance, failed approaches, privacy tradeoffs, and limitations. |
+| Live app | [Hugging Face Space](https://huggingface.co/spaces/build-small-hackathon/pakistan-notice-helper) |
+| Source | [GitHub repository](https://github.com/kingabzpro/pakistan-notice-helper) |
+| Open traces | [Privacy-safe trace dataset](https://huggingface.co/datasets/build-small-hackathon/pakistan-notice-helper-traces) |
+| Build report | [`FIELD_NOTES.md`](FIELD_NOTES.md) |
 
-The final submission must also include a short demo video, a social-media post,
-and evidence that a target user tried the app. These are submission and
-Backyard AI judging requirements, not features that repository metadata can
-prove.
+## Hackathon Fit
 
-## Run locally
+This is an intended **Backyard AI** submission for the
+[Build Small. Play Big. Hackathon](https://huggingface.co/build-small-hackathon).
+It applies a small model to a practical regional safety problem.
 
-Python 3.10 or newer is recommended.
-
-```bash
-python -m pip install -r requirements.txt
-python app.py
-```
-
-Open `http://127.0.0.1:7860`. Local runs bind to localhost by default. On
-Hugging Face Spaces, the app automatically binds to `0.0.0.0`.
-
-Useful checks:
-
-```bash
-python -m py_compile app.py
-python app.py --self-test
-python app.py --test-endpoint
-python scripts/generate_example_cache.py
-```
-
-The last command requires Modal proxy credentials.
-
-## Model configuration
-
-The app uses the standard OpenAI Python SDK as a client for an
-OpenAI-compatible endpoint. It does not call OpenAI cloud APIs by default.
-
-| Variable | Purpose |
+| Area | Project evidence |
 | --- | --- |
-| `MODEL_BASE_URL` | Optional override for the built-in Modal endpoint |
-| `MODEL_NAME` | Optional override for the built-in model ID |
-| `MODEL_API_KEY` | Optional endpoint API key |
-| `MODEL_TIMEOUT_SECONDS` | Optional request timeout; default is 180 seconds |
-| `MODEL_ENABLE_REASONING` | Enables Qwen thinking mode; default is `true` |
-| `MODEL_REASONING_MAX_TOKENS` | Reasoning and final-response budget; defaults to 2048 for text and 3072 for images |
-| `MODAL_PROXY_KEY` | Optional Modal proxy authentication key |
-| `MODAL_PROXY_SECRET` | Optional Modal proxy authentication secret |
-| `HF_TOKEN` | Scoped Hugging Face token used by the background trace uploader |
-| `HF_TRACE_DATASET_REPO` | Trace dataset repo; defaults to `build-small-hackathon/pakistan-notice-helper-traces` |
-| `TRACE_BATCH_SIZE` | Trace records per shard; default is 20 |
-| `TRACE_FLUSH_SECONDS` | Maximum batching delay; default is 60 seconds |
-
-The current defaults are:
-
-```text
-MODEL_BASE_URL=https://abidali899--pakistan-scam-checker-qwen35-4b-q8-serve.modal.run
-MODEL_NAME=qwen3.5-4b-q8
-```
-
-See [local model setup](docs/local_model_setup.md) and
-[endpoint testing](docs/model_endpoint_testing.md).
-
-## Model behavior
-
-The app sends text and optional image data to the configured multimodal
-OpenAI-compatible endpoint and validates its structured response. Qwen
-reasoning is enabled by default. The parser removes the private `<think>` block
-and returns only the validated assessment to the user.
-
-The six built-in text and screenshot examples use assessments generated by the
-deployed Qwen3.5 model and stored in `data/example_assessments.json`. Trying
-those examples does not call or wake the Modal endpoint, and the UI labels them
-as **Cached model result**. Editing an example or uploading a different image
-switches back to normal model analysis.
-
-There is no rule-based or sample fallback for user-submitted input. If
-credentials are missing, the endpoint is unavailable, or the model returns
-invalid output, the app displays a clear error and does not manufacture an
-assessment.
+| Core constraints | Public Gradio Space using Qwen3.5-4B, below the 7B limit |
+| Backyard AI | Notice and scam triage designed for Pakistani users |
+| Modal | Qwen3.5-4B is hosted on a Modal L4 GPU endpoint |
+| Tiny Titan | The 4B Q8 model passed the final 10-case internal regression suite |
+| Llama Champion | Qwen3.5-4B runs through a CUDA-enabled `llama.cpp` server using its OpenAI-compatible API |
+| Off-Brand | Custom mobile-first HTML, CSS, and JavaScript interface served through `gradio.Server` instead of the default Gradio UI |
+| Bonus quests | Runtime notes for Local Llama, privacy-safe traces, and published field notes |
+| Pending | Track form, user test, demo video, public announcement, and final repository sync |
 
 ## Architecture
 
 ```text
-Custom HTML/CSS/JavaScript frontend
-        |
-        | Gradio POST + SSE protocol
-        v
-Queued gradio.Server backend
-        |
-        | OpenAI Python SDK
-        v
-Deployed/local OpenAI-compatible endpoint
-        |
-        | Modal L4 + CUDA llama-server
-        v
-llama.cpp runtime
+Text or screenshot
         |
         v
-unsloth/Qwen3.5-4B-MTP-GGUF
+Custom bilingual frontend on gradio.Server
+        |
+        v
+Image preprocessing and structured safety prompt
+        |
+        v
+Qwen3.5-4B Q8_0 MTP on llama.cpp
+        |
+        v
+Modal L4 endpoint
+        |
+        v
+Risk label, explanation, red flags, and safe next steps
 ```
 
-All frontend assets are local. The app has no runtime CDN, analytics, OCR, MCP,
-or OpenAI Agents SDK. The OpenAI Python package is only an HTTP client for the
-OpenAI-compatible `llama-server` endpoint; requests are not sent to OpenAI.
-Analysis currently depends on the deployed Modal model.
+Gradio provides queueing, API routes, and Hugging Face Spaces hosting without
+exposing a default Gradio UI. Live analyses always use the configured model
+endpoint. There is no heuristic fallback, and endpoint failures are shown
+explicitly. Bundled English examples are cached; Urdu analyses are generated
+live.
 
-## Sharing is Caring: Open Traces
+## Model and Evaluation
 
-The app publishes optional privacy-safe backend traces to
-[`build-small-hackathon/pakistan-notice-helper-traces`](https://huggingface.co/datasets/build-small-hackathon/pakistan-notice-helper-traces).
-The checkbox is visible and enabled by default on each request, and users can
-turn it off before submitting.
+- **Model:** `unsloth/Qwen3.5-4B-MTP-GGUF` using `Qwen3.5-4B-Q8_0.gguf`
+- **Runtime:** [`llama.cpp` OpenAI-compatible server](https://github.com/ggml-org/llama.cpp/tree/master/examples/server)
+- **Client:** [OpenAI Python SDK with a custom `base_url`](https://github.com/openai/openai-python#configuring-the-http-client)
+- **Hosting:** Modal L4 GPU
+- **Internal evaluation:** 10/10 final regression cases, up from 9/10 initially
 
-Trace creation is deterministic Python logic and makes no additional model
-request. Text inputs are aggressively redacted and capped at 500 characters;
-images use a fixed `image: ...` description without OCR or image storage. The
-trace also records category, urgency, fixed signals, result counts, and a
-deterministic `result_summary` explaining the scam pattern and risk label.
-All trace columns are flat scalar values; no dataset cell contains a nested
-dictionary. Detected signals are combined into the readable `scam_tactics`
-column.
-It never stores raw messages, screenshots, links, detected identifiers, model
-explanations, reply text, exceptions, or credentials.
+The focused test set covers banking notices, authority impersonation, prize
+scams, service messages, Urdu text, and screenshots. It is not a claim of
+general fraud-detection accuracy.
 
-Safe records are queued without blocking the response, written in batches of
-20 or after 60 seconds, and uploaded as unique JSONL shards. Hub failures leave
-the shard pending for a later retry and do not affect scam analysis.
-
-Operator commands:
+## Run Locally
 
 ```bash
-python -m traces.scripts.seed_trace_dataset
-python -m traces.scripts.validate_traces
-python -m traces.scripts.create_trace_dataset --dry-run
-python -m traces.scripts.create_trace_dataset
-python -m traces.scripts.create_trace_dataset --replace-data
-python -m traces.scripts.export_pending_traces --dry-run
-python -m traces.scripts.upload_trace_shards --dry-run
+pip install -r requirements.txt
+copy .env.example .env
+python app.py
 ```
 
-See [the dataset card](traces/dataset_card.md) for the schema, privacy
-policy, provenance, and limitations.
+On macOS or Linux, use `cp .env.example .env`. Add `MODAL_PROXY_KEY` and
+`MODAL_PROXY_SECRET` to `.env` before starting live inference. Model URL, name,
+token limit, timeout, and retry settings are optional.
 
-## Deployment
+See [`docs/local_model_setup.md`](docs/local_model_setup.md) for full setup and deployment
+instructions.
 
-The app is deployed as a Gradio Space under the Build Small Hackathon
-organization. The metadata at the top of this README pins Gradio, identifies
-the Backyard AI track, and launches `app.py`.
+## Privacy-Safe Traces
 
-Add `MODAL_PROXY_KEY` and `MODAL_PROXY_SECRET` under
-**Space Settings → Secrets**. The endpoint URL and model name are built into
-the app; `MODEL_BASE_URL` and `MODEL_NAME` remain available as overrides for a
-future local deployment.
+Users can explicitly consent to sharing a minimized workflow trace. Traces may
+include language, input type, risk label, latency, response length, and a coarse
+error category.
 
-## Privacy and limitations
+They do **not** include raw notice text, OCR text, screenshots, names, phone
+numbers, credentials, or full model responses. See
+the trace [`dataset card`](traces/dataset_card.md).
 
-- Submitted text and images are sent to the configured Modal endpoint and are
-  not saved by this app.
-- Public traces contain only allow-listed metadata, buckets, booleans, counts,
-  and fixed summaries. Tracing can be disabled per request.
-- Do not upload private personal data unless you trust the Modal deployment.
-- No automated result proves that a notice is genuine or fraudulent.
-- Image analysis requires a multimodal endpoint with its vision projector.
+## Privacy and Limitations
 
-## Project structure
+- Inputs are processed in memory and are not written to disk by the app.
+- Model requests are sent to the configured Modal endpoint.
+- Redact CNIC numbers, account details, OTPs, PINs, and other sensitive data.
+- Poor images, mixed scripts, abbreviations, or missing context can reduce reliability.
+- Verify using contact details obtained independently from the message.
 
-```text
-app.py
-requirements.txt
-README.md
-FIELD_NOTES.md
-docs/
-  local_model_setup.md
-  model_endpoint_testing.md
-  research_notes.md
-  model_experiment_notes.md
-data/
-  example_assessments.json
-traces/
-  runtime.py
-  dataset_card.md
-  data/
-    trace_samples.jsonl
-  scripts/
-    create_trace_dataset.py
-    seed_trace_dataset.py
-    validate_traces.py
-    export_pending_traces.py
-    upload_trace_shards.py
-static/
-  index.html
-  styles.css
-  app.js
-experiments/
-  modal_qwen35_4b_q8/
-```
-
-The six bundled examples have cached Modal assessments and deterministic seed
-traces. Runtime trace shards are kept out of Git and uploaded separately.
-
-## Official reporting channels
-
-Use contact details that you navigate to independently:
+## Official Verification
 
 - [PTA Complaint Management System](https://complaint.pta.gov.pk/)
+- [PTA Numbering and Short Codes](https://www.pta.gov.pk/category/numbering-and-short-codes)
 - [FIA Complaint Portal](https://complaint.fia.gov.pk/)
 - [State Bank of Pakistan](https://www.sbp.org.pk/)
 - [Federal Board of Revenue](https://www.fbr.gov.pk/)
-- The official bank, courier, utility, traffic authority, or government website
-  relevant to the notice
 
-Never call a number or open a link merely because it appears inside the message
-being checked.
+Never rely on a verification link contained inside a suspicious message.

@@ -38,11 +38,10 @@ REQUIRED_FIELDS = {
     "reply_draft",
 }
 EXAMPLE_CACHE_PATH = ROOT / "data" / "example_assessments.json"
-DEFAULT_REASONING_MAX_TOKENS = 2048
-DEFAULT_REASONING_IMAGE_MAX_TOKENS = 3072
 
 SYSTEM_PROMPT = """Assess Pakistani notices and messages for scam risk.
-Return only JSON matching the schema. Use simple, calm English.
+Return only JSON matching the schema. Use the response language requested by
+the user. Default to simple, calm English.
 
 Apply this label rubric strictly:
 - Looks normal: a relevant notice with no meaningful scam indicator and no
@@ -210,7 +209,6 @@ def parse_model_json(
 ) -> dict[str, Any]:
     telemetry = telemetry if telemetry is not None else {}
     candidate = content.strip()
-    candidate = re.sub(r"<think>.*?</think>\s*", "", candidate, flags=re.I | re.S)
     if candidate.startswith("```"):
         candidate = re.sub(r"^```(?:json)?\s*", "", candidate, flags=re.I)
         candidate = re.sub(r"\s*```$", "", candidate)
@@ -305,22 +303,23 @@ def create_model_client() -> tuple[OpenAI, str]:
     )
 
 
-def reasoning_enabled() -> bool:
-    """Return whether Qwen thinking mode should be enabled."""
-    value = os.getenv("MODEL_ENABLE_REASONING", "true").strip().lower()
-    return value not in {"0", "false", "no", "off"}
-
-
 def call_model(
     text: str,
     image_data_url: str,
     telemetry: dict[str, Any] | None = None,
+    output_language: str = "en",
 ) -> dict[str, Any]:
     telemetry = telemetry if telemetry is not None else {}
     client, model_name = create_model_client()
+    language_instruction = (
+        "Write all user-facing JSON values in clear Urdu script."
+        if output_language == "ur"
+        else "Write all user-facing JSON values in simple English."
+    )
     prompt = (
         "Assess the following Pakistani notice or message for scam risk. "
-        "Explain visible evidence and give safe next steps.\n\n"
+        "Explain visible evidence and give safe next steps. "
+        f"{language_instruction}\n\n"
         f"Message text:\n{text.strip() or '[No text supplied; inspect the image.]'}"
     )
     content: Any = prompt
@@ -344,21 +343,6 @@ def call_model(
             "normalize_ms": 0.0,
         }
     )
-    use_reasoning = reasoning_enabled()
-    if use_reasoning:
-        max_tokens = int(
-            os.getenv(
-                "MODEL_REASONING_MAX_TOKENS",
-                str(
-                    DEFAULT_REASONING_IMAGE_MAX_TOKENS
-                    if image_data_url
-                    else DEFAULT_REASONING_MAX_TOKENS
-                ),
-            )
-        )
-    else:
-        max_tokens = 500 if image_data_url else 350
-
     for attempt in range(1, retries + 1):
         telemetry["attempt_count"] = attempt
         telemetry["retry_count"] = attempt - 1
@@ -371,10 +355,8 @@ def call_model(
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": content},
                 ],
-                temperature=1.0 if use_reasoning else 0,
-                top_p=0.95 if use_reasoning else 1.0,
-                presence_penalty=1.5 if use_reasoning else 0,
-                max_tokens=max_tokens,
+                temperature=0,
+                max_tokens=500 if image_data_url else 350,
                 response_format={
                     "type": "json_schema",
                     "json_schema": {
@@ -383,10 +365,7 @@ def call_model(
                         "schema": OUTPUT_SCHEMA,
                     },
                 },
-                extra_body={
-                    "top_k": 20,
-                    "chat_template_kwargs": {"enable_thinking": use_reasoning},
-                },
+                extra_body={"chat_template_kwargs": {"enable_thinking": False}},
             )
             telemetry["modal_ms"] += (
                 time.perf_counter() - request_started
@@ -421,11 +400,13 @@ def analyze_notice(
     image_data_url: str = "",
     example_id: str = "",
     save_trace: bool = True,
+    output_language: str = "en",
 ) -> dict[str, Any]:
     """Analyze supplied text/image using the configured model only."""
     text = (text or "").strip()
     image_data_url = image_data_url or ""
     example_id = (example_id or "").strip()
+    output_language = "ur" if output_language == "ur" else "en"
 
     def finish(
         response: dict[str, Any],
@@ -455,7 +436,7 @@ def analyze_notice(
             },
         )
 
-    if example_id in EXAMPLE_ASSESSMENTS:
+    if output_language == "en" and example_id in EXAMPLE_ASSESSMENTS:
         return finish(
             {
                 "ok": True,
@@ -480,7 +461,11 @@ def analyze_notice(
         )
     telemetry: dict[str, Any] = {}
     try:
-        result = call_model(text, image_data_url, telemetry)
+        result = (
+            call_model(text, image_data_url, telemetry, output_language="ur")
+            if output_language == "ur"
+            else call_model(text, image_data_url, telemetry)
+        )
         return finish(
             {
                 "ok": True,
@@ -522,8 +507,15 @@ def analyze_api(
     image_data_url: str = "",
     example_id: str = "",
     save_trace: bool = True,
+    output_language: str = "en",
 ) -> dict[str, Any]:
-    return analyze_notice(text, image_data_url, example_id, save_trace)
+    return analyze_notice(
+        text,
+        image_data_url,
+        example_id,
+        save_trace,
+        output_language,
+    )
 
 
 @app.api(name="status", description="Return model and privacy status.", queue=False)

@@ -58,9 +58,8 @@ python experiments/modal_qwen35_4b_q8/test_request.py
 - **503 or timeout:** the GPU container may be cold-starting. Increase
   `MODEL_TIMEOUT_SECONDS` if needed.
 - **Image is ignored:** confirm `llama-server` loaded `mmproj-F16.gguf`.
-- **Invalid JSON or missing final answer:** increase
-  `MODEL_REASONING_MAX_TOKENS`, or set `MODEL_ENABLE_REASONING=false` to use the
-  lower-latency non-thinking path. The app reports the model failure and does
-  not create a fallback assessment.
+- **Invalid JSON:** retain JSON-schema response formatting and disable model
+  thinking. The app reports the model failure and does not create a fallback
+  assessment.
 - **Local URL fails:** ensure the base URL points to the server root or `/v1`,
   not directly to `/chat/completions`.
